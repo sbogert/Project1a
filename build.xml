@@ -16,10 +16,25 @@ The build file for the flight mapping project
 <mkdir dir="${doc.dir}" />
 </target>
 
-<!-- Compile the java code in ${source.dir} into ${build.dir} -->
+<!-- Compile the java code in ${source.dir} into ${build.dir}
 <target name="compile" depends="init" description="compile java sources">
 <javac srcdir="${source.dir}" destdir="${build.dir}" />
+</target> -->
+
+<!-- Compile the java code for specific files into ${build.dir} -->
+<target name="compile" depends="init" description="compile java sources">
+<javac include="FlightMap.java", "SearchMap.java", "Destination.java" destdir="${build.dir}" />
 </target>
+
+
+<!-- Test the stuff, NOT DONE
+<target name="compTest" description="compile dependencies for test files">
+<javac include="SearchMap.java" />
+</target>
+
+<target name="test" depends="compTest" description="test the project">
+<javac include="TestSearchMap.java" />
+</target> -->
 
 <!-- Generate javadocs for current project into ${doc.dir} -->
 <target name="doc" depends="init" description="generate documentation">

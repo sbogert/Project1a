@@ -9,7 +9,7 @@ public class TestFlightMap {
 
     
     /** Constructor method to accept each input-output pair*/
-    public TestFlightMap (int in, int expectedOut) {
+    public TestFlightMap (char srcCity, char destCity, int cost, int expectedOut) {
     this.input = in;
     this.expectedOutput = expectedOut;
     }
@@ -21,14 +21,14 @@ public class TestFlightMap {
     }
 
 
-    @Parameterized.Parameters /** Store the test data */
+    @Parameterized.Parameters /** Store test input and correct output */
     public static Collection<Object[]> valuePairs() {
         return Arrays.asList(new Object[][] { { 0, 0 }, { 1, 1 }, { 2, 1 }, { 3, 1 }, { 100, 10 } });
     }
 
     @Test /** Parameterized JUnit test method*/
-    public void testIsqrt() {
-        assertEquals("square root for " + input + " ", expectedOutput, tester.isqrt(input));
+    public void testOutputFlight() {
+        assertEquals("square root for " + input + " ", expectedOutput, tester.outputFlight(input));
     }
 }
 
