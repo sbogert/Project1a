@@ -1,4 +1,4 @@
-<project name="SearchMap" default="compile" basedir=".">
+<project name="Project1a" default="compile" basedir=".">
 
 <description>
 The build file for the flight mapping project
@@ -6,9 +6,10 @@ The build file for the flight mapping project
 
 
 <!-- global properties for this build file -->
-<property name="source.dir" location="src"/>
+<property name="src.dir" location="src"/>
 <property name="build.dir" location="bin"/>
 <property name="doc.dir" location="doc"/>
+<property name="lib.dir" location="lib"/>
 
 <!-- set up directories used by this project -->
 <target name="init" description="setup project directories">
@@ -16,15 +17,33 @@ The build file for the flight mapping project
 <mkdir dir="${doc.dir}" />
 </target>
 
-<!-- Compile the java code in ${source.dir} into ${build.dir}
-<target name="compile" depends="init" description="compile java sources">
-<javac srcdir="${source.dir}" destdir="${build.dir}" />
-</target> -->
 
-<!-- Compile the java code for specific files into ${build.dir} -->
-<target name="compile" depends="init" description="compile java sources">
-<javac include="FlightMap.java", "SearchMap.java", "Destination.java" destdir="${build.dir}" />
+
+<target name="build.classpath" description="adding jars to classpath">
+<path id="build.classpath">
+    <fileset dir="${lib.dir}">
+        <include name="/junit_jar/*.jar"/>
+    </fileset>
+</path>
 </target>
+
+<!-- Compile the java code in ${source.dir} into ${build.dir} -->
+<!-- Compile the java code for specific files into ${build.dir} -->
+<target name="compile" depends="build.classpath, init" description="compile java sources">
+    <javac srcdir="${src.dir}" destdir="${build.dir}" includeantruntime="false"/>
+    </target>
+
+
+
+
+<!-- Compile the java code for specific files into ${build.dir}
+<target name="compile" depends="build.classpath, init" description="compile java sources">
+<!- <javac srcdir="${src.dir}" destdir="{build.dir}\classes">    ->
+<javac srcdir="${src.dir}" destdir="${build.dir}" includeantruntime="false"
+       classpathref="build.classpath"/> 
+<!- </javac> ->
+<javac include="FlightMap.java, SearchMap.java, Destination.java" destdir="${build.dir}/classes" />
+</target> -->
 
 
 <!-- Test the stuff, NOT DONE
@@ -38,15 +57,17 @@ The build file for the flight mapping project
 
 <!-- Generate javadocs for current project into ${doc.dir} -->
 <target name="doc" depends="init" description="generate documentation">
-<javadoc sourcepath="${source.dir}" destdir="${doc.dir}" />
+<javadoc sourcepath="${src.dir}" destdir="${doc.dir}" />
 </target>
+
+
 
 <!-- Delete the build & doc directories and Emacs backup (*~) files -->
 <target name="clean" description="tidy up the workspace">
 <delete dir="${build.dir}" />
 <delete dir="${doc.dir}" />
 <delete>
-<fileset defaultexcludes="no" dir="${source.dir}" includes="**/*~" />
+<fileset defaultexcludes="no" dir="${src.dir}" includes="**/*~" />
 </delete>
 </target>
 

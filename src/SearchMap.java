@@ -1,23 +1,33 @@
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+
 public class SearchMap {
-    // The file SearchMap.java contains the “client” code – the main function that handles command-line options and file read and write -- that uses a FlightMap. 
-    private FlightMap flightMap;
-    char originCity = '';
+    private static FlightMap flightMap;
+    static char originCity = ' ';
 
-
+    
+    /** handles command-line informationadn file read and write */
     public static void main(String args[]) {
+        System.out.println(args[0]);
         // read in the flight information from input file
-        readInFile(args[1]);
+        readInFile(args[0]);
+        flightMap.findFlight();
         String outStr = flightMap.outputFlights();
-        writeOutFile(args[2], outStr);
+       
+        writeOutFile(args[1], outStr);
     }
     
 
     /** read in flight information from input file */
-    public void readInFile(String fileIn) {
+    public static void readInFile(String fileIn) {
         String s = "";
         int dirCost = 0;
-        char srcCity = '';
-        char destCity = '';
+        Character srcCity = ' ';
+        char destCity = ' ';
 
         try {
             BufferedReader br = new BufferedReader(new FileReader(fileIn));
@@ -28,8 +38,8 @@ public class SearchMap {
             // while loop reads each line of input file
             while ((s = br.readLine()) != null) {
                 srcCity = s.charAt(0);
-                destCity = s.charAt(1);
-                dirCost = Integer.parseInt(s.substring(2));
+                destCity = s.charAt(2);
+                dirCost = Integer.parseInt(s.substring(4));
                 
                 // add to flight map
                 Destination dest = new Destination(destCity, dirCost);
@@ -57,22 +67,27 @@ public class SearchMap {
 
 
     /** function that writes the solution to the output file */
-    public void writeOutFile(String fileOut, String trips) {
+    public static void writeOutFile(String fileOut, String trips) {
         String [] sepTrips = trips.split("\n");
 
         try {
             // writing to the output file
-            BufferedWriter writer = new BufferedWriter(fileOut);
-            writer.write("Destination\tFlight Route from " + originCity + "\tTotal Cost");
+            BufferedWriter writer = new BufferedWriter(new FileWriter(fileOut));
+            writer.write("Destination\t\tFlight Route from " + originCity + "\t\tTotal Cost\n");
             // for loop goes through each trip and writes the details to the output file
             for (String s : sepTrips) {
                 String [] tripDeets = s.split(" ");
-                writer.write("%15" + tripDeets[0] + "%23" + tripDeets[1] + tripDeets[2]);
+                writer.write(tripDeets[0] + "\t\t\t\t"+ tripDeets[1]);
+                // formatting spaces
+                for (int i = 0; i < 23-tripDeets[1].length(); i++) {
+                    writer.write(" ");
+                }
+                writer.write("$" + tripDeets[2] + "\n");
             }
         writer.close();
         }
         catch (Exception e) {
-            e.printStackTrace()
+            e.printStackTrace();
         }
     }
 }
