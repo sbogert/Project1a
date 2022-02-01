@@ -5,76 +5,101 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
+
+/** Stores a map and provides operations that facilitates a search of the map
+ * 
+ */
 public class FlightMap {
-    // The FlightMap class, implemented in FlightMap.java, stores a map and provides operations that facilitate a search of the map. Feel free to implement FlightMap in any way you like.
 
     private Map<Character, ArrayList<Destination>> flightMap;
     private char originCity;
     private String outStr = "";
 
 
-    /** constructor for FlightMap */
+    /** FlightMap constructor
+     * 
+     * @param originCity - The origin city for all flight routes
+     */
     public FlightMap(char originCity) {
         flightMap = new HashMap<Character, ArrayList<Destination>>();
         this.originCity = originCity;
     }
 
 
-    /** addFlight adds flights to the flight map */
+    /** Adds direct flights to the flight map 
+     * 
+     * @param srcCity - city that the direct flight leaves from 
+     * @param dest - city that the direct flight arrives to
+    */
     public void addFlight(Character srcCity, Destination dest) {
-        // if source city not already in map, create key value pair
+        /* if source city not already in map, create key value pair */
         if (flightMap.containsKey(srcCity) == false) {
-            // the value is an empty ArrayList
+            /* the value is an empty ArrayList */
             flightMap.put(srcCity, new ArrayList<Destination>());
         }
-        // add the destination to the list of destinations for the current key
+        /* add the destination to the current key's list of destinations */ 
         flightMap.get(srcCity).add(dest);
     }
 
 
-    /** findFlight looks for all possible flight paths */
+    /** Looks for all possible flight paths
+     * 
+     */
     public void findFlight() {
         Destination src = new Destination(originCity, 0);
-        Stack<Destination> toSearch = new Stack<Destination>();     // stack of cities to search with dfs
-        ArrayList<Destination> dirFlights;     // list of values for each src key
-        Set<Character> visited = new HashSet<Character>();  // set of all cities that are a destination
+        Stack<Destination> toSearch = new Stack<Destination>();  
+         /* list of destinations of direct flight for each src key */
+        ArrayList<Destination> dirFlights;  
+        /* set of all destinations */
+        Set<Character> visited = new HashSet<Character>();  
+        
+        /* start search at source city */
         toSearch.push(src);
         src.addSrcCity(String.valueOf(src.getCity()));
         
-        // while loop continues until all valid cities have been searched for possible flights
+        /* loop finds all flight routes and sends them to putFlight() */
         do {
             src = toSearch.pop();
-            // if the city is in the map and has direct flights
+            
+            /* if the city is in the map and has direct flights */
             if ((dirFlights = flightMap.get(src.getCity())) != null) {
-                // add all direct flights to search list and send to output
+                
+                /* add all direct flights to search list and send to output */
                 for (Destination dest: dirFlights) {
+                    
+                    /* if no route to this dest has been found yet */
                     if (visited.contains(dest.getCity()) == false) {
                         visited.add(dest.getCity());
+                        /* combine flight cost with rest of trip's cost */
                         dest.addCost(src.getCost());
                         dest.addSrcCity(String.valueOf(src.getSrcCities()) + String.valueOf(dest.getCity()));    
                         toSearch.push(dest);
                         putFlight(dest);
                     }
                 }
-                // remove the searched city from the flightMap
+                /* remove the searched city from the flightMap */
                 flightMap.remove(src.getCity());
-            }
-            // remove city from list of cities to search
-            // toSearch.remove(0);
-           
+            }           
         }
         while (toSearch.isEmpty() != true);
     }
 
 
-    /** adds next trip to string of all possible flights */
+    /** Adds next trip to the string of all route information 
+     * 
+     * @param dest - Destination that the entire trip arrives to
+    */
     public void putFlight(Destination dest) {
-        outStr += dest.getCity() + " " + dest.getSrcCities() + " " + dest.getCost() + "\n";
+        String srcCities = dest.getSrcCities().replace("" , ",");
+        outStr += dest.getCity() + " " + srcCities.substring(1, srcCities.length()-1) + " " + dest.getCost() + "\n";
     }
 
-    /** return the string of all possible trips */
+
+    /** Outputs the flight routes 
+     * 
+     * @return string of all possible trips
+    */
     public String outputFlights() {
         return outStr;
-        // maybe for outputting to file, read each part of the string that is separated by spaces
     }
 }

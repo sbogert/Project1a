@@ -5,89 +5,93 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
+/** Contains the main method, also reads and writes the input and output files */
 public class SearchMap {
+    
     private static FlightMap flightMap;
     static char originCity = ' ';
 
     
-    /** handles command-line informationadn file read and write */
+    /** Main function thathandles command-line information and file read and write
+     * 
+     * @param args[] - Command line arguments, which are the locations of the input and output files
+     */
     public static void main(String args[]) {
-        System.out.println(args[0]);
-        // read in the flight information from input file
-        readInFile(args[0]);
-        flightMap.findFlight();
-        String outStr = flightMap.outputFlights();
-       
-        writeOutFile(args[1], outStr);
+        try {
+            readInFile(args[0]);        /* read in the direct flights */
+            flightMap.findFlight();     /* create a flight map and routes */
+            String outStr = flightMap.outputFlights();      
+            writeOutFile(args[1], outStr);     /* write routes to output file */
+        }
+        catch (FileNotFoundException fnfe) {
+            System.out.println("\nThe file could not be found\n");
+        }      
+        catch (IOException ioe) {
+            System.out.println("\nIOException thrown\n");
+        }  
     }
     
 
-    /** read in flight information from input file */
-    public static void readInFile(String fileIn) {
+    /** Read in the flight information from input file
+     * 
+     * @param fileIn - Name or location of the input file containing the flight information
+     * 
+     * @throws FileNotFoundException
+     * @throws IOException
+     */
+    public static void readInFile(String fileIn) throws FileNotFoundException, IOException {
         String s = "";
         int dirCost = 0;
         Character srcCity = ' ';
         char destCity = ' ';
 
-        try {
-            BufferedReader br = new BufferedReader(new FileReader(fileIn));
-            // read in first line to get origin city
-            originCity = br.readLine().charAt(0);
-            flightMap = new FlightMap(originCity);
+        BufferedReader br = new BufferedReader(new FileReader(fileIn));
+        
+        /* read in first line to get the origin city */
+        originCity = br.readLine().charAt(0);
+        flightMap = new FlightMap(originCity);
+        
+        /* loop reads each line of the input file to create a flight map */
+        while ((s = br.readLine()) != null) {
+            srcCity = s.charAt(0);
+            destCity = s.charAt(2);
+            dirCost = Integer.parseInt(s.substring(4));
             
-            // while loop reads each line of input file
-            while ((s = br.readLine()) != null) {
-                srcCity = s.charAt(0);
-                destCity = s.charAt(2);
-                dirCost = Integer.parseInt(s.substring(4));
-                
-                // add to flight map
-                Destination dest = new Destination(destCity, dirCost);
-                flightMap.addFlight(srcCity, dest);
-            }
-            br.close();
+            /* add flight to flight map */
+            Destination dest = new Destination(destCity, dirCost);
+            flightMap.addFlight(srcCity, dest);
         }
-        catch (FileNotFoundException e) {
-            System.out.println("\nThe file " + fileIn +  " could not be found");
-        }      
-        catch (IOException e) {
-            System.out.println("\nIOException thrown\n");
-        }  
-        catch (NullPointerException e) {
-            System.out.println("Object information is incomplete");
-        }
-        catch (NumberFormatException e) {
-            System.out.println("Number format exception thrown");
-        }
-        catch (Exception e) {
-            System.out.println("\nother Exception thrown\n");
-            e.printStackTrace();
-        } 
+        br.close();
     }
 
 
-    /** function that writes the solution to the output file */
-    public static void writeOutFile(String fileOut, String trips) {
+    /** Writes the flight information to the output file
+     * 
+     * @param fileOut - Name or location of file to write output to
+     * @param trips - String of all flight routes and costs 
+     * 
+     * @throws IOException
+     */
+    public static void writeOutFile(String fileOut, String trips) throws IOException {
+        
+        /* array of strings, each string is a line in output.txt */
         String [] sepTrips = trips.split("\n");
 
-        try {
-            // writing to the output file
-            BufferedWriter writer = new BufferedWriter(new FileWriter(fileOut));
-            writer.write("Destination\t\tFlight Route from " + originCity + "\t\tTotal Cost\n");
-            // for loop goes through each trip and writes the details to the output file
-            for (String s : sepTrips) {
-                String [] tripDeets = s.split(" ");
-                writer.write(tripDeets[0] + "\t\t\t\t"+ tripDeets[1]);
-                // formatting spaces
-                for (int i = 0; i < 23-tripDeets[1].length(); i++) {
-                    writer.write(" ");
-                }
-                writer.write("$" + tripDeets[2] + "\n");
+        /* writing to the output file */
+        BufferedWriter writer = new BufferedWriter(new FileWriter(fileOut));
+        writer.write("Destination\t\tFlight Route from " + originCity + "\t\tTotal Cost\n");
+        
+        /* loop separates the details of each trip and writes to output */
+        for (String s : sepTrips) {
+            String [] tripDeets = s.split(" ");
+            writer.write(tripDeets[0] + "\t\t\t\t"+ tripDeets[1]);
+            
+            /* formatting the spacing */
+            for (int i = 0; i < 24-tripDeets[1].length(); i++) {
+                writer.write(" ");
             }
+            writer.write("$" + tripDeets[2] + "\n");
+        }
         writer.close();
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 }
